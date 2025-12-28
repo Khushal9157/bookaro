@@ -1,0 +1,23 @@
+{
+  "name": "bookaro",
+  "version": "1.0.0",
+  "description": "ticketbooking window, scalable system, solves concurrency issues, ratelimiting functionality available",
+  "keywords": [
+    "ticket",
+    "booking",
+    "concurrency",
+    "ratelimiting",
+    "redis"
+  ],
+  "license": "ISC",
+  "author": "Khushal Saini",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  }
+}
