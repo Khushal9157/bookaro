@@ -9,3 +9,6 @@ services:
       POSTGRES_DB: tickets
     ports:
       - "5432:5432"
+    volumes:
+      - ./sql:/sql
+
