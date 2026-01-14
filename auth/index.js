@@ -1,14 +1,12 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
-const db = require("../common/db");
+const authRoutes = require("./authRoutes");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
-app.post("/login", async (req, res) => {
-    const { email } = req.body;
-    const token = jwt.sign({ email }, "SECRET");
-    res.json({ token });
+app.use("/auth", authRoutes);
+
+app.listen(process.env.authServicePORT, () => {
+    console.log(`Auth Service running on port ${process.env.authServicePORT}`);
 });
-
-app.listen(3001);
