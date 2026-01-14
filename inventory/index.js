@@ -3,6 +3,7 @@ const { lockSeat } = require("./seatLock");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/lock", async (req, res) => {
     const { eventId, seatId, userId } = req.body;
@@ -10,4 +11,4 @@ app.post("/lock", async (req, res) => {
     res.json({ success });
 });
 
-app.listen(3002);
+app.listen(process.env.inventoryServicePORT);

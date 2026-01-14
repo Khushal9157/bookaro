@@ -1,8 +1,9 @@
 const express = require("express");
-const routes = require("./bookingRoutes");
+const bookingRoutes = require("./bookingRoutes");
 
 const app = express();
 app.use(express.json());
-app.use(routes);
+app.use(cookieParser());
+app.use(bookingRoutes);
 
 app.listen(process.env.bookingServicePORT);
