@@ -12,8 +12,8 @@ services:
     volumes:
       - ./sql:/sql
 
-    redis:
-      image: redis:7
-      ports:
-        - "6379:6379"
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
 
