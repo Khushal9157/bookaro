@@ -1,12 +1,16 @@
+require("dotenv").config({ path: "auth/.env" });
+
 const express = require("express");
-const authRoutes = require("./authRoutes");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/auth", authRoutes);
+const PORT = process.env.PORT || 3001;
 
-app.listen(process.env.authServicePORT, () => {
-    console.log(`Auth Service running on port ${process.env.authServicePORT}`);
+app.use("/auth", require("./authRoutes"));
+
+app.listen(PORT, () => {
+    console.log(`Auth Service running on port ${PORT}`);
 });

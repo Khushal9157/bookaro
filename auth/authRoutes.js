@@ -5,7 +5,7 @@ const db = require("../common/db");
 const validator = require('validator');
 
 const authRouter = express.Router();
-const JWT_SECRET = process.env.jwtSecret;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 authRouter.post("/register", async (req, res) => {
     const { email, password } = req.body;
@@ -19,11 +19,11 @@ authRouter.post("/register", async (req, res) => {
         }
 
         const user = await db.query("SELECT 1 FROM users WHERE email = $1", [email]);
-        if (user) {
+        if (user.rows.length > 0) {
             throw new Error(`${email} is already registered`);
         }
 
-        const hashedPassword = await bcrypt.hash(password, process.env.SALT);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         await db.query(
             "INSERT INTO users (email, password) VALUES ($1, $2)",
@@ -66,7 +66,8 @@ authRouter.post("/login", async (req, res) => {
 authRouter.post("/logout", (req, res) => {
     res.cookie("token", null, {
         expires: new Date(Date.now())
-    })
+    });
+    res.send("Logged out successfully");
 });
 
 module.exports = authRouter;
