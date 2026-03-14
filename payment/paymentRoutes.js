@@ -1,26 +1,12 @@
 const express = require("express");
-const db = require("../common/db");
 
 const router = express.Router();
 
-router.post("/pay", async (req, res) => {
-    const { bookingId, amount, idempotencyKey } = req.body;
+const paymentController = require("../controllers/paymentController");
 
-    try {
-        await db.query(
-            "INSERT INTO payments(booking_id,amount,idempotency_key,status) VALUES($1,$2,$3,$4)",
-            [bookingId, amount, idempotencyKey, "SUCCESS"]
-        );
+const internalAuth = require("../middlewares/internalAuth");
+const userAuth = require("../middlewares/userAuth");
 
-        await db.query(
-            "UPDATE bookings SET status='CONFIRMED' WHERE id=$1",
-            [bookingId]
-        );
-
-        res.send("Payment successful");
-    } catch {
-        res.send("Duplicate payment ignored");
-    }
-});
+router.post("/payments", internalAuth, userAuth, paymentController.createPayment);
 
 module.exports = router;

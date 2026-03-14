@@ -1,8 +1,17 @@
 const express = require("express");
-const routes = require("./paymentRoutes");
+const cookieParser = require("cookie-parser");
+
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
-app.use(express.json());
-app.use(routes);
 
-app.listen(process.env.paymentServicePORT);
+app.use(express.json());
+app.use(cookieParser());
+
+app.use("/", paymentRoutes);
+
+const PORT = process.env.PORT || 3005;
+
+app.listen(PORT, () => {
+    console.log(`Payment service running on port ${PORT}`);
+});
