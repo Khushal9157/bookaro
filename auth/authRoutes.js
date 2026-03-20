@@ -32,12 +32,19 @@ authRouter.post("/register", async (req, res) => {
 
         res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
+        console.log(err.message)
         res.status(400).send("ERROR : " + err.message);
     }
 });
 
 authRouter.post("/login", async (req, res) => {
     const { email, password } = req.body;
+
+    if (!validator.isEmail(email)) {
+        throw new Error("Invalid email");
+    }
+
+    console.log("hi")
 
     const userInDB = await db.query("SELECT * FROM users WHERE email = $1", [email]);
 

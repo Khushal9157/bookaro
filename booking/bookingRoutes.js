@@ -2,7 +2,7 @@ const express = require("express");
 
 const bookingRouter = express.Router();
 
-const bookingController = require("../bookingController");
+const bookingController = require("./bookingController");
 
 const internalAuth = require("../middlewares/internalAuth");
 const userAuth = require("../middlewares/userAuth");

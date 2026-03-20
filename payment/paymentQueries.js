@@ -1,4 +1,4 @@
-const db = require("../../common/db");
+const db = require("../common/db");
 
 async function getPaymentByKey(key) {
 

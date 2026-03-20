@@ -1,14 +1,15 @@
+require("dotenv").config({ path: require("path").join(__dirname, ".env") });
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-const inventoryRoutes = require("./routes/inventoryRoutes");
+const inventoryRoutes = require("./inventoryRoutes");
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/", inventoryRoutes);
+app.use("/inventory", inventoryRoutes);
 
 const PORT = process.env.PORT || 3002;
 

@@ -1,4 +1,4 @@
-const inventoryService = require("../inventoryService");
+const inventoryService = require("./inventoryService");
 
 async function createEvent(req, res) {
     try {

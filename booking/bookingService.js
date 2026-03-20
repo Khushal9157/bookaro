@@ -1,5 +1,5 @@
-const redis = require("../redisClient");
-const queries = require("../bookingQueries");
+const redis = require("./redisClient");
+const queries = require("./bookingQueries");
 
 const LOCK_TTL = 300;
 

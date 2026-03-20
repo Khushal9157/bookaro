@@ -25,7 +25,7 @@ CREATE TABLE seats (
 
 CREATE TABLE bookings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id),
+  user_id INTEGER REFERENCES users(id),
   event_id UUID REFERENCES events(id),
   status TEXT NOT NULL,
   total_amount INTEGER,

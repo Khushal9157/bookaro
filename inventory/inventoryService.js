@@ -1,4 +1,4 @@
-const queries = require("../inventoryQueries");
+const queries = require("./inventoryQueries");
 
 function generateSeats(rows, seatsPerRow, price) {
     const seats = [];
@@ -42,7 +42,7 @@ async function createEvent(data) {
     return event;
 }
 
-async function getEvents(page = 1, limit = 10) {
+async function getEvents(page = 1, limit = 9) {
     const offset = (page - 1) * limit;
 
     return queries.getEvents(limit, offset);

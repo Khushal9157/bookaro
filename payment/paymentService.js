@@ -1,4 +1,4 @@
-const queries = require("../paymentQueries");
+const queries = require("./paymentQueries");
 
 function simulatePaymentProvider() {
 

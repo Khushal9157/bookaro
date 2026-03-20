@@ -1,49 +1,48 @@
+require("dotenv").config({ path: require("path").join(__dirname, ".env") });
+
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
-function setupRoutes(app) {
+const logger = {
+    info: (...args) => console.log("[PROXY INFO] ", ...args),
+    warn: (...args) => console.warn("[PROXY WARN] ", ...args),
+    error: (...args) => console.error("[PROXY ERROR]", ...args),
+};
 
-    const options = {
+function makeProxy(target, serviceName, pathPrefix) {
+    return createProxyMiddleware({
+        target,
         changeOrigin: true,
-        onProxyReq: (proxyReq) => {
-            proxyReq.setHeader(
-                "x-internal-token",
-                process.env.INTERNAL_SERVICE_SECRET
-            );
-        }
-    };
+        logger,
+        pathRewrite: (path) => {
+            const newPath = `/${pathPrefix}${path}`;
+            console.log(`[REWRITE] ${path} → ${newPath}`);
+            return newPath;
+        },
+        on: {
+            proxyReq: (proxyReq, req) => {
+                const secret = process.env.INTERNAL_SERVICE_SECRET;
+                proxyReq.setHeader("x-internal-token", secret);
+                console.log(`[→ ${serviceName}] ${req.method} ${req.url} | token: ${secret}`);
+            },
+            proxyRes: (proxyRes, req) => {
+                console.log(`[← ${serviceName}] ${proxyRes.statusCode} ${req.url}`);
+            },
+            error: (err, req, res) => {
+                console.error(`[✗ ${serviceName}] ${err.message}`);
+                res.status(502).json({
+                    error: `${serviceName} unreachable`,
+                    detail: err.message,
+                });
+            },
+        },
+    });
+}
 
-    app.use(
-        "/auth",
-        createProxyMiddleware({
-            target: "http://auth:4000",
-            ...options
-        })
-    );
-
-    app.use(
-        "/events",
-        createProxyMiddleware({
-            target: "http://inventory:4001",
-            ...options
-        })
-    );
-
-    app.use(
-        "/bookings",
-        createProxyMiddleware({
-            target: "http://booking:4002",
-            ...options
-        })
-    );
-
-    app.use(
-        "/payments",
-        createProxyMiddleware({
-            target: "http://payment:4003",
-            ...options
-        })
-    );
-
+function setupRoutes(app) {
+    app.use("/auth", makeProxy("http://127.0.0.1:3001", "Auth", "auth"));
+    app.use("/inventory", makeProxy("http://127.0.0.1:3002", "Inventory", "inventory"));
+    app.use("/booking", makeProxy("http://127.0.0.1:3003", "Booking", "booking"));
+    app.use("/payments", makeProxy("http://127.0.0.1:3004", "Payment", "payments"));
 }
 
 module.exports = setupRoutes;
