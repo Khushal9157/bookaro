@@ -1,3 +1,5 @@
+require("dotenv").config({ path: require("path").join(__dirname, ".env") });
+console.log("SECRET:", process.env.INTERNAL_SERVICE_SECRET); // should print the value now
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
@@ -8,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/", paymentRoutes);
+app.use("/payments", paymentRoutes);
 
 const PORT = process.env.PORT || 3005;
 

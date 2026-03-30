@@ -42,7 +42,7 @@ function setupRoutes(app) {
     app.use("/auth", makeProxy("http://127.0.0.1:3001", "Auth", "auth"));
     app.use("/inventory", makeProxy("http://127.0.0.1:3002", "Inventory", "inventory"));
     app.use("/booking", makeProxy("http://127.0.0.1:3003", "Booking", "booking"));
-    app.use("/payments", makeProxy("http://127.0.0.1:3004", "Payment", "payments"));
+    app.use("/payments", makeProxy("http://127.0.0.1:3005", "Payment", "payments"));
 }
 
 module.exports = setupRoutes;
