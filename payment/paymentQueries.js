@@ -80,11 +80,21 @@ async function bookSeats(bookingId) {
     );
 }
 
+async function updatePaymentStatusByOrderId(orderId, status, razorpayPaymentId) {
+    await db.query(
+        `UPDATE payments
+         SET status = $1, provider_payment_id = $2
+         WHERE idempotency_key = $3`,
+        [status, razorpayPaymentId, orderId]
+    );
+}
+
 module.exports = {
     getPaymentByKey,
     getBooking,
     createPayment,
     updatePaymentStatus,
+    updatePaymentStatusByOrderId,
     confirmBooking,
     failBooking,
     bookSeats

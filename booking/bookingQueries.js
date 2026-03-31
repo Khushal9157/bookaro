@@ -47,8 +47,23 @@ async function getSeats(seatIds) {
     return result.rows;
 }
 
+async function getUserBookings(userId) {
+
+    const result = await db.query(
+        `SELECT b.id, b.event_id, b.status, array_agg(s.seat_number) AS seats
+     FROM bookings b
+     JOIN booking_seats bs ON b.id = bs.booking_id
+        JOIN seats s ON bs.seat_id = s.id   
+        WHERE b.user_id = $1
+        GROUP BY b.id`,
+        [userId]
+    );
+    return result.rows;
+}
+
 module.exports = {
     createBooking,
     addBookingSeats,
-    getSeats
+    getSeats,
+    getUserBookings
 };

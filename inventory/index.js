@@ -1,4 +1,4 @@
-require("dotenv").config({ path: require("path").join(__dirname, ".env") });
+require("dotenv").config({ path: "inventory/.env" });
 const express = require("express");
 const cookieParser = require("cookie-parser");
 

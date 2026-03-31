@@ -4,9 +4,7 @@ const queries = require("./bookingQueries");
 const LOCK_TTL = 300;
 
 async function lockSeat(seatId, bookingId) {
-
     const key = `seat_lock:${seatId}`;
-
     const result = await redis.set(
         key,
         bookingId,
@@ -14,7 +12,6 @@ async function lockSeat(seatId, bookingId) {
         "EX",
         LOCK_TTL
     );
-
     return result === "OK";
 }
 
@@ -27,13 +24,10 @@ async function createBooking(userId, seatIds) {
     }
 
     const eventId = seats[0].event_id;
-
     const booking = await queries.createBooking(userId, eventId);
 
     for (const seat of seats) {
-
         const locked = await lockSeat(seat.id, booking.id);
-
         if (!locked) {
             throw new Error("Seat already locked");
         }
@@ -41,10 +35,18 @@ async function createBooking(userId, seatIds) {
     }
 
     await queries.addBookingSeats(booking.id, seats);
-
     return booking;
 }
 
+async function getUserBookings(userId) {
+    console.log("Fetching bookings for user:", userId);
+    const result = await queries.getUserBookings(userId);
+    return result;
+}
+
+
+
 module.exports = {
-    createBooking
+    createBooking,
+    getUserBookings
 };

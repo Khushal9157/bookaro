@@ -1,64 +1,62 @@
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 const queries = require("./paymentQueries");
 
-function simulatePaymentProvider() {
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
-    const rand = Math.random();
+// Step 1: Create Razorpay order
+async function createOrder(userId, bookingId, amount) {
+    const booking = await queries.getBooking(bookingId);
+    if (!booking) throw new Error("Booking not found");
+    if (booking.status !== "PENDING") throw new Error("Booking already processed");
 
-    if (rand < 0.9) {
-        return "SUCCESS";
-    }
+    // Create order in Razorpay (amount in paise)
+    const order = await razorpay.orders.create({
+        amount: amount * 100, // convert ₹ to paise
+        currency: "INR",
+        receipt: bookingId,
+        notes: { bookingId, userId }
+    });
 
-    return "FAILED";
+    // Save order in DB with INITIATED status
+    const payment = await queries.createPayment(
+        bookingId,
+        amount,
+        order.id // use razorpay order_id as idempotency key
+    );
+
+    return {
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        paymentId: payment.id,
+        keyId: process.env.RAZORPAY_KEY_ID
+    };
 }
 
-async function createPayment(userId, bookingId, amount, idempotencyKey) {
+// Step 2: Verify payment signature and confirm booking
+async function verifyPayment(userId, bookingId, razorpayOrderId, razorpayPaymentId, razorpaySignature) {
 
-    const existingPayment =
-        await queries.getPaymentByKey(idempotencyKey);
+    // Verify signature — prevents tampered payments
+    const body = razorpayOrderId + "|" + razorpayPaymentId;
+    const expectedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(body)
+        .digest("hex");
 
-    if (existingPayment) {
-        return existingPayment;
+    if (expectedSignature !== razorpaySignature) {
+        throw new Error("Invalid payment signature");
     }
 
-    const booking =
-        await queries.getBooking(bookingId);
+    // Signature valid — confirm booking
+    await queries.updatePaymentStatusByOrderId(razorpayOrderId, "SUCCESS", razorpayPaymentId);
+    await queries.confirmBooking(bookingId);
+    await queries.bookSeats(bookingId);
 
-    if (!booking) {
-        throw new Error("Booking not found");
-    }
-
-    if (booking.status !== "PENDING") {
-        throw new Error("Booking already processed");
-    }
-
-    const payment =
-        await queries.createPayment(
-            bookingId,
-            amount,
-            idempotencyKey
-        );
-
-    const result = simulatePaymentProvider();
-
-    if (result === "SUCCESS") {
-
-        await queries.updatePaymentStatus(payment.id, "SUCCESS");
-
-        await queries.confirmBooking(bookingId);
-
-        await queries.bookSeats(bookingId);
-
-    } else {
-
-        await queries.updatePaymentStatus(payment.id, "FAILED");
-
-        await queries.failBooking(bookingId);
-
-    }
-
-    return payment;
+    return { success: true, paymentId: razorpayPaymentId };
 }
 
-module.exports = {
-    createPayment
-};
+module.exports = { createOrder, verifyPayment };

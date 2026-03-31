@@ -15,7 +15,7 @@ authRouter.post("/register", async (req, res) => {
             throw new Error("Invalid email");
         }
         if (!validator.isStrongPassword(password)) {
-            throw new Error("Weak password .Enter a strong password");
+            throw new Error("Enter a strong password");
         }
 
         const user = await db.query("SELECT 1 FROM users WHERE email = $1", [email]);
@@ -31,7 +31,8 @@ authRouter.post("/register", async (req, res) => {
         );
 
         res.status(201).json({ message: "User registered successfully" });
-    } catch (err) {
+    }
+    catch (err) {
         console.log(err.message)
         res.status(400).send("ERROR : " + err.message);
     }
@@ -43,8 +44,6 @@ authRouter.post("/login", async (req, res) => {
     if (!validator.isEmail(email)) {
         throw new Error("Invalid email");
     }
-
-    console.log("hi")
 
     const userInDB = await db.query("SELECT * FROM users WHERE email = $1", [email]);
 

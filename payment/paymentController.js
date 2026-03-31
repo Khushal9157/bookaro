@@ -1,32 +1,43 @@
 const paymentService = require("./paymentService");
 
-async function createPayment(req, res) {
+// Step 1: Create order → returns orderId to frontend
+async function createOrder(req, res) {
     try {
-
         const userId = req.user.id;
+        const { bookingId, amount } = req.body;
 
-        const { bookingId, amount, idempotencyKey } = req.body;
-
-        const payment = await paymentService.createPayment(
-            userId,
-            bookingId,
-            amount,
-            idempotencyKey
-        );
-
-        res.status(201).json(payment);
-
+        const order = await paymentService.createOrder(userId, bookingId, amount);
+        res.status(201).json(order);
     } catch (err) {
-
         console.error(err);
-
-        res.status(400).json({
-            error: err.message
-        });
-
+        res.status(400).json({ error: err.message });
     }
 }
 
-module.exports = {
-    createPayment
-};
+// Step 2: Verify payment → confirms booking
+async function verifyPayment(req, res) {
+    try {
+        const userId = req.user.id;
+        const {
+            bookingId,
+            razorpayOrderId,
+            razorpayPaymentId,
+            razorpaySignature
+        } = req.body;
+
+        const result = await paymentService.verifyPayment(
+            userId,
+            bookingId,
+            razorpayOrderId,
+            razorpayPaymentId,
+            razorpaySignature
+        );
+
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ error: err.message });
+    }
+}
+
+module.exports = { createOrder, verifyPayment };

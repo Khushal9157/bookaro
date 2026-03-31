@@ -1,18 +1,9 @@
-require("dotenv").config({ path: require("path").join(__dirname, ".env") });
-
 const { createProxyMiddleware } = require("http-proxy-middleware");
-
-const logger = {
-    info: (...args) => console.log("[PROXY INFO] ", ...args),
-    warn: (...args) => console.warn("[PROXY WARN] ", ...args),
-    error: (...args) => console.error("[PROXY ERROR]", ...args),
-};
 
 function makeProxy(target, serviceName, pathPrefix) {
     return createProxyMiddleware({
         target,
         changeOrigin: true,
-        logger,
         pathRewrite: (path) => {
             const newPath = `/${pathPrefix}${path}`;
             console.log(`[REWRITE] ${path} → ${newPath}`);

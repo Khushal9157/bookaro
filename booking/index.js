@@ -1,5 +1,4 @@
-require("dotenv").config({ path: require("path").join(__dirname, ".env") });
-console.log("SECRET:", process.env.INTERNAL_SERVICE_SECRET); // should print the value now
+require("dotenv").config({ path: "booking/.env" });
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
