@@ -1,6 +1,5 @@
 const paymentService = require("./paymentService");
 
-// Step 1: Create order → returns orderId to frontend
 async function createOrder(req, res) {
     try {
         const userId = req.user.id;

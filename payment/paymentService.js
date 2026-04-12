@@ -7,25 +7,22 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Step 1: Create Razorpay order
 async function createOrder(userId, bookingId, amount) {
     const booking = await queries.getBooking(bookingId);
     if (!booking) throw new Error("Booking not found");
     if (booking.status !== "PENDING") throw new Error("Booking already processed");
 
-    // Create order in Razorpay (amount in paise)
     const order = await razorpay.orders.create({
-        amount: amount * 100, // convert ₹ to paise
+        amount: amount * 100,
         currency: "INR",
         receipt: bookingId,
         notes: { bookingId, userId }
     });
 
-    // Save order in DB with INITIATED status
     const payment = await queries.createPayment(
         bookingId,
         amount,
-        order.id // use razorpay order_id as idempotency key
+        order.id
     );
 
     return {
@@ -37,10 +34,8 @@ async function createOrder(userId, bookingId, amount) {
     };
 }
 
-// Step 2: Verify payment signature and confirm booking
 async function verifyPayment(userId, bookingId, razorpayOrderId, razorpayPaymentId, razorpaySignature) {
 
-    // Verify signature — prevents tampered payments
     const body = razorpayOrderId + "|" + razorpayPaymentId;
     const expectedSignature = crypto
         .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
